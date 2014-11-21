@@ -1,0 +1,93 @@
+sourceSets.main {
+    java.srcDirs project.projectDir.name
+    resources.srcDirs project.projectDir.name
+}
+build.dependsOn sourceJar, deobfJar
+jar {
+    manifest {
+        attributes 'FMLCorePlugin' : 'ak.potionextension.asm.PotionExtensionCorePlugin'
+    }
+}
+group= "com.ak"
+//archivesBaseName = "potionextension"
+version = "1.0.2"
+minecraft {
+    //replacing stuff in the source
+    replace '@VERSION@', project.version
+    replace '@MC_VERSION@', version
+}
+configurations {
+    deployerJars
+}
+dependencies {
+    // dependency in deployerJars, for maven deployment. see definition in mavenDeployer{} below
+    deployerJars "org.apache.maven.wagon:wagon-ssh:2.2"
+}
+
+uploadArchives {
+    // make sure this happens after reobfuscation
+    it.dependsOn 'reobf'
+
+    repositories {
+        if (project.hasProperty("filesmaven")) { // if this is the Forge server, and this stuff is defined...
+            logger.info('Publishing to files server')
+
+            mavenDeployer {
+                // specify the jars that maven needs to deploy here
+                configuration = configurations.deployerJars
+
+                // authentication, again, specially set in the forge server environment
+                repository(url: project.filesmaven.url) {
+                    authentication(userName: project.filesmaven.username, privateKey: project.filesmaven.key)
+                }
+
+                // here you specify all your metadata
+                // this is the definition of the maven pom.xml. This is simply a DSL to define the XML. Not actual fields or things to set.
+                pom {
+                    groupId = project.group
+                    version = project.version
+                    artifactId = project.archivesBaseName
+                    project {
+                        name project.archivesBaseName
+                        packaging 'jar'
+                        description 'A Minecraft mod extending potion array'
+                        url 'http://forum.minecraftuser.jp/viewtopic.php?f=13&t=6672'
+
+                        scm {
+                            url 'https://github.com/aksource/maven'
+                            connection 'scm:git:git://github.com/aksource/maven.git'
+                            developerConnection 'scm:git:git@github.com:aksource/maven.git'
+                        }
+
+                        issueManagement {
+                            system 'github'
+                            url 'https://github.com/aksource/maven/issues'
+                        }
+
+                        licenses {
+                            license {
+                                name 'Minecraft Mod Public License'
+                                url 'http://www.mod-buildcraft.com/MMPL-1.0.txt'
+                                distribution 'repo'
+                            }
+                        }
+
+                        developers {
+                            developer {
+                                id 'aksource'
+                                name 'A.K.'
+                                roles { role 'developer' }
+                            }
+
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            // otherwise publishing to the local repo in ~/.m2 is fine...
+            add project.repositories.mavenLocal()
+        }
+    }
+}
