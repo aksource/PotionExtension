@@ -1,6 +1,6 @@
 package ak.potionextension.asm;
 
-import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
+import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 
 import java.util.Map;
 import java.util.logging.Logger;
