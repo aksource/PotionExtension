@@ -75,4 +75,10 @@ public class PotionArrayTransformer implements IClassTransformer, Opcodes{
             } else super.visitIntInsn(opcode, operand);
         }
     }
+
+    class CustomMethodVisitor2 extends MethodVisitor {
+        public CustomMethodVisitor2(int api, MethodVisitor mv) {
+            super(api, mv);
+        }
+    }
 }
