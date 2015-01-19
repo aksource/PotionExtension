@@ -10,7 +10,7 @@ jar {
 }
 group= "com.ak"
 //archivesBaseName = "potionextension"
-version = "1.0.2"
+version = "1.0.3-forMC1.8"
 minecraft {
     //replacing stuff in the source
     replace '@VERSION@', project.version
