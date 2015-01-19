@@ -12,7 +12,7 @@ public class PotionEffectTransformer implements IClassTransformer, Opcodes {
     private static final String TARGET_CLASS_NAME = "net.minecraft.potion.PotionEffect";
     @Override
     public byte[] transform(String name, String transformedName, byte[] basicClass) {
-        if (/*!FMLLaunchHandler.side().isClient() || */!transformedName.equals(TARGET_CLASS_NAME)) {return basicClass;}
+        if (!transformedName.equals(TARGET_CLASS_NAME)) {return basicClass;}
         try {
             PotionExtensionCorePlugin.LOGGER.info("Start transforming PotionEffect Class");
             ClassReader classReader = new ClassReader(basicClass);
@@ -125,9 +125,30 @@ public class PotionEffectTransformer implements IClassTransformer, Opcodes {
         }
         //識別用description
         static final String TARGET_DESC = "(Ljava/lang/String;)B";
+
         @Override
         public void visitMethodInsn(int opcode, String owner, String name, String desc) {
             super.visitMethodInsn(opcode, owner, name, desc);
+            //処理を割りこませる部分を判定
+            if (opcode == INVOKEVIRTUAL && TARGET_DESC.equals(desc) && fieldName.equals("Id")) {
+                PotionExtensionCorePlugin.LOGGER.info("readCustomPotionEffectFromNBT:change id in [0 - 255]");
+                //256をスタック
+                super.visitIntInsn(SIPUSH, 256);
+                //スタックされた２つの数字を加算する
+                super.visitInsn(IADD);
+                //加算された数字がスタックされる。
+                //もう一度256をスタック
+                super.visitIntInsn(SIPUSH, 256);
+                //スタックされている２つの数字のうち、あとの数字で最初の数字の剰余をとる
+                super.visitInsn(IREM);
+                //剰余がスタックされる。
+                //代入してないが、このメソッドが呼ばれたあと、代入処理が呼ばれている。PotionEffectクラスのバイトコードを参照のこと。
+            }
+        }
+
+        @Override
+        public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
+            super.visitMethodInsn(opcode, owner, name, desc, itf);
             //処理を割りこませる部分を判定
             if (opcode == INVOKEVIRTUAL && TARGET_DESC.equals(desc) && fieldName.equals("Id")) {
                 PotionExtensionCorePlugin.LOGGER.info("readCustomPotionEffectFromNBT:change id in [0 - 255]");
