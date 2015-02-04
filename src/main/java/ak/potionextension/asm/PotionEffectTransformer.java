@@ -81,6 +81,7 @@ public class PotionEffectTransformer implements IClassTransformer, Opcodes {
         //visitFieldInsnメソッドの1回めの呼び出しで処理するためのフラグ
         boolean check = false;
 
+        //配列の要素数入れ替え
         @Override
         public void visitFieldInsn(int opcode, String owner, String name, String desc) {
             //判定。ここは実は、checkだけ見ればよい。
@@ -107,6 +108,29 @@ public class PotionEffectTransformer implements IClassTransformer, Opcodes {
                 super.visitFieldInsn(PUTFIELD, "net/minecraft/potion/PotionEffect", "field_76462_a", "I");//potionID
             }
             super.visitFieldInsn(opcode, owner, name, desc);
+        }
+
+        private boolean flag = false;
+        //PotionのNullチェック
+        @Override
+        public void visitLineNumber(int line, Label start) {
+            //最初のLineNumberの次にNodeを追加。
+            super.visitLineNumber(line, start);
+            if (!flag) {
+                flag = true;
+                PotionExtensionCorePlugin.LOGGER.info("onUpdate:check null potion.");
+                //Potion[this.potionID]の読み出し
+                super.visitFieldInsn(GETSTATIC, "net/minecraft/potion/Potion", "field_76425_a", "[Lnet/minecraft/potion/Potion;");//potionTypes
+                super.visitVarInsn(ALOAD, 0);
+                super.visitFieldInsn(GETFIELD, "net/minecraft/potion/PotionEffect", "field_76462_a", "I");//potionID
+                super.visitInsn(AALOAD);
+
+                Label label = new Label();
+                super.visitJumpInsn(IFNONNULL, label);
+                super.visitInsn(ICONST_0);
+                super.visitInsn(IRETURN);
+                super.visitLabel(label);
+            }
         }
     }
 
