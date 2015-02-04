@@ -96,6 +96,7 @@ public class PotionArrayTransformer implements IClassTransformer, Opcodes{
                 super.visitFieldInsn(opcode, owner, name, desc);
             } else {
                 check = true;
+                PotionExtensionCorePlugin.LOGGER.info("init:check potion id.");
                 Label l1 = new Label();
                 this.visitLabel(l1);
                 //this.visitLineNumber(109, l1);
