@@ -17,8 +17,8 @@ public class PotionExtensionCorePlugin implements IFMLLoadingPlugin {
     @Override
     public String[] getASMTransformerClass() {
         return new String[]{"ak.potionextension.asm.PotionEffectTransformer",
-                "ak.potionextension.asm.PotionArrayTransformer",
-                "ak.potionextension.asm.InventoryEffectRendererTransformer"};
+                "ak.potionextension.asm.PotionArrayTransformer"/*,
+                "ak.potionextension.asm.InventoryEffectRendererTransformer"*/};
     }
 
     @Override

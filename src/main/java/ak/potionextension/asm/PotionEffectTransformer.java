@@ -110,7 +110,7 @@ public class PotionEffectTransformer implements IClassTransformer, Opcodes {
             super.visitFieldInsn(opcode, owner, name, desc);
         }
 
-        private boolean flag = false;
+/*        private boolean flag = false;
         //PotionのNullチェック
         @Override
         public void visitLineNumber(int line, Label start) {
@@ -131,7 +131,7 @@ public class PotionEffectTransformer implements IClassTransformer, Opcodes {
                 super.visitInsn(IRETURN);
                 super.visitLabel(label);
             }
-        }
+        }*/
     }
 
     class CustomMethodVisitor2 extends MethodVisitor {
