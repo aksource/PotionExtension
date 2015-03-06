@@ -80,12 +80,35 @@ public class PotionEffectTransformer implements IClassTransformer, Opcodes {
         }
         //visitFieldInsnメソッドの1回めの呼び出しで処理するためのフラグ
         boolean check = false;
-
+        static final String TARGET_FIELD ="field_76462_a";
+        static final String TARGET_FIELD_DEV ="potionID";
         //配列の要素数入れ替え
+        //new
         @Override
         public void visitFieldInsn(int opcode, String owner, String name, String desc) {
-            //判定。ここは実は、checkだけ見ればよい。
-            if (opcode == GETFIELD && desc.equals("I") && !check) {
+            super.visitFieldInsn(opcode, owner, name, desc);
+            String srgName = FMLDeobfuscatingRemapper.INSTANCE.mapFieldName(owner, name, desc);
+            if (opcode == GETFIELD && (srgName.equals(TARGET_FIELD_DEV) || srgName.equals(TARGET_FIELD)) && desc.equals("I") && !check) {
+                check = true;
+                PotionExtensionCorePlugin.LOGGER.info("onUpdate:change id in [0 - 255]");
+                //256をスタック
+                super.visitIntInsn(SIPUSH, 256);
+                //スタックされた２つの数字を加算する
+                super.visitInsn(IADD);
+                //加算された数字がスタックされる。
+                //もう一度256をスタック
+                super.visitIntInsn(SIPUSH, 256);
+                //スタックされている２つの数字のうち、あとの数字で最初の数字の剰余をとる
+                super.visitInsn(IREM);
+                //剰余がスタックされる。
+            }
+        }
+
+        //old
+/*        @Override
+        public void visitFieldInsn(int opcode, String owner, String name, String desc) {
+            //判定。
+            if (opcode == GETFIELD && (name.equals("potionID") || name.equals("field_76462_a")) && desc.equals("I") && !check) {
                 check = true;
                 PotionExtensionCorePlugin.LOGGER.info("onUpdate:change id in [0 - 255]");
                 //これは、PUTFIELDとのペア
@@ -108,9 +131,9 @@ public class PotionEffectTransformer implements IClassTransformer, Opcodes {
                 super.visitFieldInsn(PUTFIELD, "net/minecraft/potion/PotionEffect", "field_76462_a", "I");//potionID
             }
             super.visitFieldInsn(opcode, owner, name, desc);
-        }
+        }*/
 
-/*        private boolean flag = false;
+ /*       private boolean flag = false;
         //PotionのNullチェック
         @Override
         public void visitLineNumber(int line, Label start) {
