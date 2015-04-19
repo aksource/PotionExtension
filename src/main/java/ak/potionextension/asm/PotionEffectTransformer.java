@@ -14,11 +14,9 @@ public class PotionEffectTransformer implements IClassTransformer, Opcodes {
     public byte[] transform(String name, String transformedName, byte[] basicClass) {
         if (!transformedName.equals(TARGET_CLASS_NAME)) {return basicClass;}
         try {
-            PotionExtensionCorePlugin.LOGGER.info("Start transforming PotionEffect Class");
             ClassReader classReader = new ClassReader(basicClass);
             ClassWriter classWriter = new ClassWriter(1);
             classReader.accept(new CustomVisitor(name, classWriter), 8);
-            PotionExtensionCorePlugin.LOGGER.info("Finish transforming PotionEffect Class");
             return classWriter.toByteArray();
         } catch (Exception e) {
             throw new RuntimeException("failed : PotionEffectTransformer loading", e);
@@ -51,21 +49,18 @@ public class PotionEffectTransformer implements IClassTransformer, Opcodes {
             if ((TARGET_METHOD_NAME1.equals(FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(owner, name, desc))
                     || TARGET_METHOD_NAME_DEBUG1.equals(FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(owner, name, desc)))
                     && TARGET_METHOD_DESC1.equals(FMLDeobfuscatingRemapper.INSTANCE.mapMethodDesc(desc))) {
-                PotionExtensionCorePlugin.LOGGER.info("Transforming onUpdate method");
                 return new CustomMethodVisitor1(this.api, super.visitMethod(access, name, desc, signature, exceptions));
             }
             //readCustomPotionEffectFromNBTメソッドの書き換え
             if ((TARGET_METHOD_NAME2.equals(FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(owner, name, desc))
                     || TARGET_METHOD_NAME_DEBUG2.equals(FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(owner, name, desc)))
                     && TARGET_METHOD_DESC2.equals(FMLDeobfuscatingRemapper.INSTANCE.mapMethodDesc(desc))) {
-                PotionExtensionCorePlugin.LOGGER.info("Transforming readCustomPotionEffectFromNBT method");
                 return new CustomMethodVisitor2(this.api, super.visitMethod(access, name, desc, signature, exceptions));
             }
             //getPotionIDメソッドの書き換え
             if ((TARGET_METHOD_NAME3.equals(FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(owner, name, desc))
                     || TARGET_METHOD_NAME_DEBUG3.equals(FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(owner, name, desc)))
                     && TARGET_METHOD_DESC3.equals(FMLDeobfuscatingRemapper.INSTANCE.mapMethodDesc(desc))) {
-                PotionExtensionCorePlugin.LOGGER.info("Transforming getPotionID method");
                 return new CustomMethodVisitor3(this.api, super.visitMethod(access, name, desc, signature, exceptions));
             }
             return super.visitMethod(access, name, desc, signature, exceptions);
@@ -90,7 +85,7 @@ public class PotionEffectTransformer implements IClassTransformer, Opcodes {
             String srgName = FMLDeobfuscatingRemapper.INSTANCE.mapFieldName(owner, name, desc);
             if (opcode == GETFIELD && (srgName.equals(TARGET_FIELD_DEV) || srgName.equals(TARGET_FIELD)) && desc.equals("I") && !check) {
                 check = true;
-                PotionExtensionCorePlugin.LOGGER.info("onUpdate:change id in [0 - 255]");
+                PotionExtensionCorePlugin.LOGGER.debug("onUpdate:change id in [0 - 255]");
                 //256をスタック
                 super.visitIntInsn(SIPUSH, 256);
                 //スタックされた２つの数字を加算する
@@ -199,7 +194,7 @@ public class PotionEffectTransformer implements IClassTransformer, Opcodes {
             //処理を割りこませる部分を判定
             if (opcode == INVOKEVIRTUAL && TARGET_DESC.equals(desc) && fieldName.equals("Id")) {
                 fieldName = "";
-                PotionExtensionCorePlugin.LOGGER.info("readCustomPotionEffectFromNBT:change id in [0 - 255]");
+                PotionExtensionCorePlugin.LOGGER.debug("readCustomPotionEffectFromNBT:change id in [0 - 255]");
                 //256をスタック
                 super.visitIntInsn(SIPUSH, 256);
                 //スタックされた２つの数字を加算する
@@ -223,7 +218,7 @@ public class PotionEffectTransformer implements IClassTransformer, Opcodes {
         @Override
         public void visitFieldInsn(int opcode, String owner, String name, String desc) {
             //1回しか呼ばれないので、判定なしで、処理を挟み込む。
-            PotionExtensionCorePlugin.LOGGER.info("getPotionID:change id in [0 - 255]");
+            PotionExtensionCorePlugin.LOGGER.debug("getPotionID:change id in [0 - 255]");
             super.visitFieldInsn(opcode, owner, name, desc);
             super.visitIntInsn(SIPUSH, 256);
             super.visitInsn(IADD);

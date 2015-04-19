@@ -2,16 +2,17 @@ package ak.potionextension.asm;
 
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
 import net.minecraftforge.common.config.Configuration;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.util.Map;
-import java.util.logging.Logger;
 
 /**
  * Created by A.K. on 14/07/07.
  */
 public class PotionExtensionCorePlugin implements IFMLLoadingPlugin {
-    public static final Logger LOGGER = Logger.getLogger("samplecore");
+    public static final Logger LOGGER = LogManager.getLogger("samplecore");
     public static int maxPotionArray = 128;
     public static boolean checkPotion = true;
     @Override
