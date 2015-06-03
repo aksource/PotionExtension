@@ -12,11 +12,11 @@ public class PotionArrayTransformer implements IClassTransformer, Opcodes{
     public byte[] transform(String name, String transformedName, byte[] basicClass) {
         if (!transformedName.equals(TARGET_CLASS_NAME)) {return basicClass;}
         try {
+            PotionExtensionCorePlugin.outputModifiedClassFile(basicClass, "Potion");
             ClassReader classReader = new ClassReader(basicClass);
             ClassWriter classWriter = new ClassWriter(1);
             classReader.accept(new CustomVisitor(name,classWriter), 8);
-//            return basicClass;
-            return classWriter.toByteArray();
+            return PotionExtensionCorePlugin.outputModifiedClassFile(classWriter.toByteArray(), "Potion-mod");
         } catch (Exception e) {
             throw new RuntimeException("failed : PotionArrayTransformer loading", e);
         }

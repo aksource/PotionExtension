@@ -3,6 +3,9 @@ package ak.potionextension.asm;
 import cpw.mods.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
 import net.minecraft.launchwrapper.IClassTransformer;
 import org.objectweb.asm.*;
+import org.objectweb.asm.util.CheckClassAdapter;
+
+import java.io.PrintWriter;
 
 /**
  * Created by A.K. on 14/07/07.
@@ -10,14 +13,18 @@ import org.objectweb.asm.*;
 public class PotionEffectTransformer implements IClassTransformer, Opcodes {
 
     private static final String TARGET_CLASS_NAME = "net.minecraft.potion.PotionEffect";
+    private boolean isDeobfEnvironment;
     @Override
     public byte[] transform(String name, String transformedName, byte[] basicClass) {
         if (!transformedName.equals(TARGET_CLASS_NAME)) {return basicClass;}
+        isDeobfEnvironment = name.equals(TARGET_CLASS_NAME);
         try {
+            PotionExtensionCorePlugin.outputModifiedClassFile(basicClass, "PotionEffect");
             ClassReader classReader = new ClassReader(basicClass);
             ClassWriter classWriter = new ClassWriter(1);
             classReader.accept(new CustomVisitor(name, classWriter), 8);
-            return classWriter.toByteArray();
+//            CheckClassAdapter.verify(classReader, true, new PrintWriter("PotionEffect-mod"));
+            return PotionExtensionCorePlugin.outputModifiedClassFile(classWriter.toByteArray(), "PotionEffect-mod");
         } catch (Exception e) {
             throw new RuntimeException("failed : PotionEffectTransformer loading", e);
         }
@@ -43,25 +50,57 @@ public class PotionEffectTransformer implements IClassTransformer, Opcodes {
         static final String TARGET_METHOD_NAME_DEBUG3 = "getPotionID";
         static final String TARGET_METHOD_DESC3 = "()I";//method description
 
+        static final String TARGET_METHOD_NAME4 = "func_76457_b";//performEffect
+        static final String TARGET_METHOD_NAME_DEBUG4 = "performEffect";
+        static final String TARGET_METHOD_DESC4 = "(Lnet/minecraft/entity/EntityLivingBase;)V";//method description
+
+        static final String TARGET_METHOD_NAME5 = "func_76453_d";//getEffectName
+        static final String TARGET_METHOD_NAME_DEBUG5 = "getEffectName";
+        static final String TARGET_METHOD_DESC5 = "()Ljava/lang/String;";//method description
+
+        static final String TARGET_METHOD_NAME6 = "toString";//toString
+        static final String TARGET_METHOD_NAME_DEBUG6 = "toString";
+        static final String TARGET_METHOD_DESC6 = "()Ljava/lang/String;";//method description
+
         @Override
         public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
             //onUpdateメソッドの書き換え
             if ((TARGET_METHOD_NAME1.equals(FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(owner, name, desc))
                     || TARGET_METHOD_NAME_DEBUG1.equals(FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(owner, name, desc)))
                     && TARGET_METHOD_DESC1.equals(FMLDeobfuscatingRemapper.INSTANCE.mapMethodDesc(desc))) {
-                return new CustomMethodVisitor1(this.api, super.visitMethod(access, name, desc, signature, exceptions));
+                return new InsertChangeByteMethodVisitor(this.api, super.visitMethod(access, name, desc, signature, exceptions));
+//                return this.rewriteOnUpdate(super.visitMethod(access, name, desc, signature, exceptions));
             }
             //readCustomPotionEffectFromNBTメソッドの書き換え
             if ((TARGET_METHOD_NAME2.equals(FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(owner, name, desc))
                     || TARGET_METHOD_NAME_DEBUG2.equals(FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(owner, name, desc)))
                     && TARGET_METHOD_DESC2.equals(FMLDeobfuscatingRemapper.INSTANCE.mapMethodDesc(desc))) {
-                return new CustomMethodVisitor2(this.api, super.visitMethod(access, name, desc, signature, exceptions));
+                return new ReadFromNBTMethodVisitor(this.api, super.visitMethod(access, name, desc, signature, exceptions));
             }
             //getPotionIDメソッドの書き換え
             if ((TARGET_METHOD_NAME3.equals(FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(owner, name, desc))
                     || TARGET_METHOD_NAME_DEBUG3.equals(FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(owner, name, desc)))
                     && TARGET_METHOD_DESC3.equals(FMLDeobfuscatingRemapper.INSTANCE.mapMethodDesc(desc))) {
-                return new CustomMethodVisitor3(this.api, super.visitMethod(access, name, desc, signature, exceptions));
+                return new InsertChangeByteMethodVisitor(this.api, super.visitMethod(access, name, desc, signature, exceptions));
+//                return new GetPotionIDMethodVisitor(this.api, super.visitMethod(access, name, desc, signature, exceptions));
+            }
+            //performEffectメソッドの書き換え
+            if ((TARGET_METHOD_NAME4.equals(FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(owner, name, desc))
+                    || TARGET_METHOD_NAME_DEBUG4.equals(FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(owner, name, desc)))
+                    && TARGET_METHOD_DESC4.equals(FMLDeobfuscatingRemapper.INSTANCE.mapMethodDesc(desc))) {
+                return new InsertChangeByteMethodVisitor(this.api, super.visitMethod(access, name, desc, signature, exceptions));
+            }
+            //getEffectNameメソッドの書き換え
+            if ((TARGET_METHOD_NAME5.equals(FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(owner, name, desc))
+                    || TARGET_METHOD_NAME_DEBUG5.equals(FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(owner, name, desc)))
+                    && TARGET_METHOD_DESC5.equals(FMLDeobfuscatingRemapper.INSTANCE.mapMethodDesc(desc))) {
+                return new InsertChangeByteMethodVisitor(this.api, super.visitMethod(access, name, desc, signature, exceptions));
+            }
+            //toStringメソッドの書き換え
+            if ((TARGET_METHOD_NAME6.equals(FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(owner, name, desc))
+                    || TARGET_METHOD_NAME_DEBUG6.equals(FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(owner, name, desc)))
+                    && TARGET_METHOD_DESC6.equals(FMLDeobfuscatingRemapper.INSTANCE.mapMethodDesc(desc))) {
+                return new InsertChangeByteMethodVisitor(this.api, super.visitMethod(access, name, desc, signature, exceptions));
             }
             return super.visitMethod(access, name, desc, signature, exceptions);
         }
@@ -69,17 +108,29 @@ public class PotionEffectTransformer implements IClassTransformer, Opcodes {
 
     /*Custom MethodVisitor
     * visit**Methodで、InsnNodeの入れ替えや、追加等出来る。*/
-    class CustomMethodVisitor1 extends MethodVisitor {
-        public CustomMethodVisitor1(int api, MethodVisitor mv) {
+    class InsertChangeByteMethodVisitor extends MethodVisitor {
+        public InsertChangeByteMethodVisitor(int api, MethodVisitor mv) {
             super(api, mv);
         }
-        //visitFieldInsnメソッドの1回めの呼び出しで処理するためのフラグ
-        boolean check = false;
-        static final String TARGET_FIELD ="field_76462_a";
-        static final String TARGET_FIELD_DEV ="potionID";
-        //配列の要素数入れ替え
-        //new
+        //メソッド最初に-128~127を0~255に変換する。
         @Override
+        public void visitCode() {
+            super.visitCode();
+            Label l0 = new Label();
+            super.visitLabel(l0);
+            super.visitLineNumber(124, l0);
+            super.visitVarInsn(ALOAD, 0);
+            super.visitVarInsn(ALOAD, 0);
+            super.visitFieldInsn(GETFIELD, "net/minecraft/potion/PotionEffect", (isDeobfEnvironment) ? "potionID" : "field_76462_a", "I");
+            super.visitIntInsn(SIPUSH, 256);
+            super.visitInsn(IADD);
+            super.visitIntInsn(SIPUSH, 256);
+            super.visitInsn(IREM);
+            super.visitFieldInsn(PUTFIELD, "net/minecraft/potion/PotionEffect", (isDeobfEnvironment) ? "potionID" : "field_76462_a", "I");
+        }
+
+        //new
+/*        @Override
         public void visitFieldInsn(int opcode, String owner, String name, String desc) {
             super.visitFieldInsn(opcode, owner, name, desc);
             String srgName = FMLDeobfuscatingRemapper.INSTANCE.mapFieldName(owner, name, desc);
@@ -97,66 +148,30 @@ public class PotionEffectTransformer implements IClassTransformer, Opcodes {
                 super.visitInsn(IREM);
                 //剰余がスタックされる。
             }
-        }
-
-        //old
-/*        @Override
-        public void visitFieldInsn(int opcode, String owner, String name, String desc) {
-            //判定。
-            if (opcode == GETFIELD && (name.equals("potionID") || name.equals("field_76462_a")) && desc.equals("I") && !check) {
-                check = true;
-                PotionExtensionCorePlugin.LOGGER.info("onUpdate:change id in [0 - 255]");
-                //これは、PUTFIELDとのペア
-                super.visitVarInsn(ALOAD, 0);
-                //この２つはペア
-                super.visitVarInsn(ALOAD, 0);
-                super.visitFieldInsn(GETFIELD, "net/minecraft/potion/PotionEffect", "field_76462_a", "I");//potionID
-                //ここで、スタックに数字が１つスタックされる。
-                //256をスタック
-                super.visitIntInsn(SIPUSH, 256);
-                //スタックされた２つの数字を加算する
-                super.visitInsn(IADD);
-                //加算された数字がスタックされる。
-                //もう一度256をスタック
-                super.visitIntInsn(SIPUSH, 256);
-                //スタックされている２つの数字のうち、あとの数字で最初の数字の剰余をとる
-                super.visitInsn(IREM);
-                //剰余がスタックされる。
-                //スタックされた数字をフィールドに代入する
-                super.visitFieldInsn(PUTFIELD, "net/minecraft/potion/PotionEffect", "field_76462_a", "I");//potionID
-            }
-            super.visitFieldInsn(opcode, owner, name, desc);
-        }*/
-
- /*       private boolean flag = false;
-        //PotionのNullチェック
-        @Override
-        public void visitLineNumber(int line, Label start) {
-            //最初のLineNumberの次にNodeを追加。
-            super.visitLineNumber(line, start);
-            if (!flag) {
-                flag = true;
-                PotionExtensionCorePlugin.LOGGER.info("onUpdate:check null potion.");
-                //Potion[this.potionID]の読み出し
-                super.visitFieldInsn(GETSTATIC, "net/minecraft/potion/Potion", "field_76425_a", "[Lnet/minecraft/potion/Potion;");//potionTypes
-                super.visitVarInsn(ALOAD, 0);
-                super.visitFieldInsn(GETFIELD, "net/minecraft/potion/PotionEffect", "field_76462_a", "I");//potionID
-                super.visitInsn(AALOAD);
-
-                Label label = new Label();
-                super.visitJumpInsn(IFNONNULL, label);
-                super.visitInsn(ICONST_0);
-                super.visitInsn(IRETURN);
-                super.visitLabel(label);
-            }
         }*/
     }
 
-    class CustomMethodVisitor2 extends MethodVisitor {
-        public CustomMethodVisitor2(int api, MethodVisitor mv) {
+    class ReadFromNBTMethodVisitor extends MethodVisitor {
+        public ReadFromNBTMethodVisitor(int api, MethodVisitor mv) {
             super(api, mv);
         }
-        //visitMethodInsnが複数あるため、直前のfieldNameを保存する。
+
+        @Override
+        public void visitLineNumber(int line, Label start) {
+            super.visitLineNumber(line, start);
+            if (line == 211) {
+                super.visitVarInsn(ILOAD, 1);
+                super.visitIntInsn(SIPUSH, 256);
+                super.visitInsn(IADD);
+                super.visitIntInsn(SIPUSH, 256);
+                super.visitInsn(IREM);
+                super.visitVarInsn(ISTORE, 1);
+                Label l2 = new Label();
+                super.visitLabel(l2);
+                super.visitLineNumber(217, l2);
+            }
+        }
+/*        //visitMethodInsnが複数あるため、直前のfieldNameを保存する。
         String fieldName = "";
         @Override
         public void visitLdcInsn(Object cst) {
@@ -168,25 +183,6 @@ public class PotionEffectTransformer implements IClassTransformer, Opcodes {
         //識別用description
         static final String TARGET_DESC = "(Ljava/lang/String;)B";
 
-/*        @Override
-        public void visitMethodInsn(int opcode, String owner, String name, String desc) {
-            super.visitMethodInsn(opcode, owner, name, desc);
-            //処理を割りこませる部分を判定
-            if (opcode == INVOKEVIRTUAL && TARGET_DESC.equals(desc) && fieldName.equals("Id")) {
-                PotionExtensionCorePlugin.LOGGER.info("readCustomPotionEffectFromNBT:change id in [0 - 255]");
-                //256をスタック
-                super.visitIntInsn(SIPUSH, 256);
-                //スタックされた２つの数字を加算する
-                super.visitInsn(IADD);
-                //加算された数字がスタックされる。
-                //もう一度256をスタック
-                super.visitIntInsn(SIPUSH, 256);
-                //スタックされている２つの数字のうち、あとの数字で最初の数字の剰余をとる
-                super.visitInsn(IREM);
-                //剰余がスタックされる。
-                //代入してないが、このメソッドが呼ばれたあと、代入処理が呼ばれている。PotionEffectクラスのバイトコードを参照のこと。
-            }
-        }*/
 
         @Override
         public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
@@ -207,11 +203,11 @@ public class PotionEffectTransformer implements IClassTransformer, Opcodes {
                 //剰余がスタックされる。
                 //代入してないが、このメソッドが呼ばれたあと、代入処理が呼ばれている。PotionEffectクラスのバイトコードを参照のこと。
             }
-        }
+        }*/
     }
 
-    class CustomMethodVisitor3 extends MethodVisitor {
-        public CustomMethodVisitor3(int api, MethodVisitor mv) {
+    class GetPotionIDMethodVisitor extends MethodVisitor {
+        public GetPotionIDMethodVisitor(int api, MethodVisitor mv) {
             super(api, mv);
         }
 
