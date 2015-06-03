@@ -2,18 +2,22 @@ package ak.potionextension.asm;
 
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.util.Map;
-import java.util.logging.Logger;
 
 /**
  * Created by A.K. on 14/07/07.
  */
 public class PotionExtensionCorePlugin implements IFMLLoadingPlugin {
-    public static final Logger LOGGER = Logger.getLogger("samplecore");
+    public static final Logger LOGGER = LogManager.getLogger("PotionExtension");
     public static int maxPotionArray = 128;
     public static boolean checkPotion = true;
+    public static File mcLoc;
+    private static boolean debug = false;
     @Override
     public String[] getASMTransformerClass() {
         return new String[]{"ak.potionextension.asm.PotionEffectTransformer",
@@ -51,5 +55,17 @@ public class PotionExtensionCorePlugin implements IFMLLoadingPlugin {
     @Override
     public String getAccessTransformerClass() {
         return null;
+    }
+    public static byte[] outputModifiedClassFile(byte[] modified, String className) {
+        if (debug) {
+            try {
+                FileOutputStream fos = new FileOutputStream(className + ".class");
+                fos.write(modified);
+                fos.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return modified;
     }
 }
