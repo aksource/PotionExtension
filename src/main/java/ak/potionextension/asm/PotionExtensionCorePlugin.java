@@ -10,14 +10,26 @@ import java.io.FileOutputStream;
 import java.util.Map;
 
 /**
+ * CoreModのメインクラス。<br>
+ *     ClassTransformerの指定や、ModContainerクラスの指定を行う。
  * Created by A.K. on 14/07/07.
  */
 public class PotionExtensionCorePlugin implements IFMLLoadingPlugin {
+    /** logger */
     public static final Logger LOGGER = LogManager.getLogger("PotionExtension");
+    /** Potion配列の配列数指定。初期値は128 */
     public static int maxPotionArray = 128;
+    /** ポーションの重複チェックをするかどうかのフラグ。初期値はtrue */
     public static boolean checkPotion = true;
+    /** minecraftフォルダの位置 */
     public static File mcLoc;
-    private static boolean debug = false;
+    /** 開発用 */
+    private static boolean debug = true;
+
+    /**
+     * ClassTransformerクラスの完全修飾クラス名を配列指定
+     * @return ClassTransformerクラスの完全修飾クラス名の配列
+     */
     @Override
     public String[] getASMTransformerClass() {
         return new String[]{"ak.potionextension.asm.PotionEffectTransformer",
@@ -25,16 +37,28 @@ public class PotionExtensionCorePlugin implements IFMLLoadingPlugin {
                 "ak.potionextension.asm.InventoryEffectRendererTransformer"*/};
     }
 
+    /**
+     * ModContainerクラスのクラス名指定
+     * @return ModContainerクラスのクラス名
+     */
     @Override
     public String getModContainerClass() {
         return "ak.potionextension.asm.PotionExtensionCoreContainer";
     }
 
+    /**
+     * CallHookクラスのクラス名指定
+     * @return CallHookクラスのクラス名
+     */
     @Override
     public String getSetupClass() {
         return null;
     }
 
+    /**
+     * クラスロード時に呼ばれる。コンフィグの設定とか
+     * @param data minecraftフォルダ等の情報の入ったマップ
+     */
     @Override
     public void injectData(Map<String, Object> data) {
         if (data.containsKey("mcLocation")) {
@@ -45,6 +69,10 @@ public class PotionExtensionCorePlugin implements IFMLLoadingPlugin {
         }
     }
 
+    /**
+     * コンフィグの読み込み
+     * @param configFile コンフィグファイル
+     */
     private void initConfig(File configFile) {
         Configuration config = new Configuration(configFile);
         config.load();
@@ -53,11 +81,21 @@ public class PotionExtensionCorePlugin implements IFMLLoadingPlugin {
         config.save();
     }
 
+    /**
+     * AccessTransformaerクラスのクラス名指定
+     * @return AccessTransformaerクラスのクラス名
+     */
     @Override
     public String getAccessTransformerClass() {
         return null;
     }
 
+    /**
+     * デバッグ用
+     * @param modified クラスのバイト配列
+     * @param className クラス名
+     * @return クラスのバイト配列
+     */
     public static byte[] outputModifiedClassFile(byte[] modified, String className) {
         if (debug) {
             try {
