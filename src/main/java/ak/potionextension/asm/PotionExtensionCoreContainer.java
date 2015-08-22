@@ -8,12 +8,17 @@ import net.minecraftforge.fml.common.ModMetadata;
 import java.util.Arrays;
 
 /**
+ * Coremod—p‚ÌModContainerƒNƒ‰ƒX
  * Created by A.K. on 14/07/08.
  */
 public class PotionExtensionCoreContainer extends DummyModContainer {
+    /**
+     * ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+     */
     public PotionExtensionCoreContainer() {
         super(new ModMetadata());
 
+        /* mcmodinfo‚Ìİ’è */
         ModMetadata meta = getMetadata();
         meta.modId = "PotionExtensionCore";
         meta.name = "PotionExtensionCore";
@@ -25,7 +30,12 @@ public class PotionExtensionCoreContainer extends DummyModContainer {
         this.setEnabledState(true);
     }
 
-
+    /**
+     * Coremod‚ğMod‚Æ‚µ‚Ä“o˜^
+     * @param bus “o˜^—pBUS
+     * @param controller LoadController
+     * @return “o˜^‚µ‚½‚©‚Ç‚¤‚©
+     */
     @Override
     public boolean registerBus(EventBus bus, LoadController controller) {
         bus.register(this);
