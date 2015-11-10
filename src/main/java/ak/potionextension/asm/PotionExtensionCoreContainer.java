@@ -4,37 +4,39 @@ import com.google.common.eventbus.EventBus;
 import net.minecraftforge.fml.common.DummyModContainer;
 import net.minecraftforge.fml.common.LoadController;
 import net.minecraftforge.fml.common.ModMetadata;
+import net.minecraftforge.fml.common.versioning.VersionParser;
 
-import java.util.Arrays;
+import java.util.Collections;
 
 /**
- * Coremod—p‚ÌModContainerƒNƒ‰ƒX
+ * Coremodç”¨ã®ModContainerã‚¯ãƒ©ã‚¹
  * Created by A.K. on 14/07/08.
  */
 public class PotionExtensionCoreContainer extends DummyModContainer {
     /**
-     * ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+     * ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
      */
     public PotionExtensionCoreContainer() {
         super(new ModMetadata());
 
-        /* mcmodinfo‚Ìİ’è */
+        /* mcmodinfoã®è¨­å®š */
         ModMetadata meta = getMetadata();
         meta.modId = "PotionExtensionCore";
         meta.name = "PotionExtensionCore";
         meta.version = "@VERSION@";
-        meta.authorList = Arrays.asList("A.K.");
+        meta.authorList = Collections.singletonList("A.K.");
         meta.description = "Potion Extension Core Mod";
         meta.url = "http://forum.minecraftuser.jp/viewtopic.php?f=13&t=6672";
         meta.credits = "";
+        meta.dependencies = Collections.singletonList(VersionParser.parseVersionReference("Forge@[11.14.3.1543,)"));
         this.setEnabledState(true);
     }
 
     /**
-     * Coremod‚ğMod‚Æ‚µ‚Ä“o˜^
-     * @param bus “o˜^—pBUS
+     * Coremodã‚’Modã¨ã—ã¦ç™»éŒ²
+     * @param bus ç™»éŒ²ç”¨BUS
      * @param controller LoadController
-     * @return “o˜^‚µ‚½‚©‚Ç‚¤‚©
+     * @return ç™»éŒ²ã—ãŸã‹ã©ã†ã‹
      */
     @Override
     public boolean registerBus(EventBus bus, LoadController controller) {
