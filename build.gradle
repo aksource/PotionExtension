@@ -10,12 +10,31 @@ jar {
 }
 group= "com.ak"
 //archivesBaseName = "potionextension"
-version = "1.8-1.1.1"
+version = "1.8-1.1.2"
 minecraft {
     //replacing stuff in the source
     replace '@VERSION@', project.version
     replace '@MC_VERSION@', version
 }
+processResources {
+    // this will ensure that this task is redone when the versions change.
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraft.version
+
+    // replace stuff in mcmod.info, nothing else
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+
+        // replace version and mcversion
+        expand 'version':project.version, 'mcversion':project.minecraft.version
+    }
+
+    // copy everything else, thats not the mcmod.info
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
+}
+
 configurations {
     deployerJars
 }
@@ -26,7 +45,7 @@ dependencies {
 
 apply plugin: 'maven'
 
-// maven ローカルリポジトリのパス
+// maven 繝ｭ繝ｼ繧ｫ繝ｫ繝ｪ繝昴ず繝医Μ縺ｮ繝代せ
 ext {
     mavenRepository = '/maven'
 }
