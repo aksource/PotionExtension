@@ -10,25 +10,25 @@ import java.io.FileOutputStream;
 import java.util.Map;
 
 /**
- * CoreMod‚ÌƒƒCƒ“ƒNƒ‰ƒXB<br>
- *     ClassTransformer‚Ìw’è‚âAModContainerƒNƒ‰ƒX‚Ìw’è‚ğs‚¤B
+ * CoreModã®ãƒ¡ã‚¤ãƒ³ã‚¯ãƒ©ã‚¹ã€‚<br>
+ *     ClassTransformerã®æŒ‡å®šã‚„ã€ModContainerã‚¯ãƒ©ã‚¹ã®æŒ‡å®šã‚’è¡Œã†ã€‚
  * Created by A.K. on 14/07/07.
  */
 public class PotionExtensionCorePlugin implements IFMLLoadingPlugin {
     /** logger */
     public static final Logger LOGGER = LogManager.getLogger("PotionExtension");
-    /** Potion”z—ñ‚Ì”z—ñ”w’èB‰Šú’l‚Í128 */
+    /** Potioné…åˆ—ã®é…åˆ—æ•°æŒ‡å®šã€‚åˆæœŸå€¤ã¯128 */
     public static int maxPotionArray = 128;
-    /** ƒ|[ƒVƒ‡ƒ“‚Ìd•¡ƒ`ƒFƒbƒN‚ğ‚·‚é‚©‚Ç‚¤‚©‚Ìƒtƒ‰ƒOB‰Šú’l‚Ítrue */
+    /** ãƒãƒ¼ã‚·ãƒ§ãƒ³ã®é‡è¤‡ãƒã‚§ãƒƒã‚¯ã‚’ã™ã‚‹ã‹ã©ã†ã‹ã®ãƒ•ãƒ©ã‚°ã€‚åˆæœŸå€¤ã¯true */
     public static boolean checkPotion = true;
-    /** minecraftƒtƒHƒ‹ƒ_‚ÌˆÊ’u */
+    /** minecraftãƒ•ã‚©ãƒ«ãƒ€ã®ä½ç½® */
     public static File mcLoc;
-    /** ŠJ”­—p */
+    /** é–‹ç™ºç”¨ */
     private static boolean debug = true;
 
     /**
-     * ClassTransformerƒNƒ‰ƒX‚ÌŠ®‘SCüƒNƒ‰ƒX–¼‚ğ”z—ñw’è
-     * @return ClassTransformerƒNƒ‰ƒX‚ÌŠ®‘SCüƒNƒ‰ƒX–¼‚Ì”z—ñ
+     * ClassTransformerã‚¯ãƒ©ã‚¹ã®å®Œå…¨ä¿®é£¾ã‚¯ãƒ©ã‚¹åã‚’é…åˆ—æŒ‡å®š
+     * @return ClassTransformerã‚¯ãƒ©ã‚¹ã®å®Œå…¨ä¿®é£¾ã‚¯ãƒ©ã‚¹åã®é…åˆ—
      */
     @Override
     public String[] getASMTransformerClass() {
@@ -38,8 +38,8 @@ public class PotionExtensionCorePlugin implements IFMLLoadingPlugin {
     }
 
     /**
-     * ModContainerƒNƒ‰ƒX‚ÌƒNƒ‰ƒX–¼w’è
-     * @return ModContainerƒNƒ‰ƒX‚ÌƒNƒ‰ƒX–¼
+     * ModContainerã‚¯ãƒ©ã‚¹ã®ã‚¯ãƒ©ã‚¹åæŒ‡å®š
+     * @return ModContainerã‚¯ãƒ©ã‚¹ã®ã‚¯ãƒ©ã‚¹å
      */
     @Override
     public String getModContainerClass() {
@@ -47,8 +47,8 @@ public class PotionExtensionCorePlugin implements IFMLLoadingPlugin {
     }
 
     /**
-     * CallHookƒNƒ‰ƒX‚ÌƒNƒ‰ƒX–¼w’è
-     * @return CallHookƒNƒ‰ƒX‚ÌƒNƒ‰ƒX–¼
+     * CallHookã‚¯ãƒ©ã‚¹ã®ã‚¯ãƒ©ã‚¹åæŒ‡å®š
+     * @return CallHookã‚¯ãƒ©ã‚¹ã®ã‚¯ãƒ©ã‚¹å
      */
     @Override
     public String getSetupClass() {
@@ -56,8 +56,8 @@ public class PotionExtensionCorePlugin implements IFMLLoadingPlugin {
     }
 
     /**
-     * ƒNƒ‰ƒXƒ[ƒh‚ÉŒÄ‚Î‚ê‚éBƒRƒ“ƒtƒBƒO‚Ìİ’è‚Æ‚©
-     * @param data minecraftƒtƒHƒ‹ƒ_“™‚Ìî•ñ‚Ì“ü‚Á‚½ƒ}ƒbƒv
+     * ã‚¯ãƒ©ã‚¹ãƒ­ãƒ¼ãƒ‰æ™‚ã«å‘¼ã°ã‚Œã‚‹ã€‚ã‚³ãƒ³ãƒ•ã‚£ã‚°ã®è¨­å®šã¨ã‹
+     * @param data minecraftãƒ•ã‚©ãƒ«ãƒ€ç­‰ã®æƒ…å ±ã®å…¥ã£ãŸãƒãƒƒãƒ—
      */
     @Override
     public void injectData(Map<String, Object> data) {
@@ -70,8 +70,8 @@ public class PotionExtensionCorePlugin implements IFMLLoadingPlugin {
     }
 
     /**
-     * ƒRƒ“ƒtƒBƒO‚Ì“Ç‚İ‚İ
-     * @param configFile ƒRƒ“ƒtƒBƒOƒtƒ@ƒCƒ‹
+     * ã‚³ãƒ³ãƒ•ã‚£ã‚°ã®èª­ã¿è¾¼ã¿
+     * @param configFile ã‚³ãƒ³ãƒ•ã‚£ã‚°ãƒ•ã‚¡ã‚¤ãƒ«
      */
     private void initConfig(File configFile) {
         Configuration config = new Configuration(configFile);
@@ -82,8 +82,8 @@ public class PotionExtensionCorePlugin implements IFMLLoadingPlugin {
     }
 
     /**
-     * AccessTransformaerƒNƒ‰ƒX‚ÌƒNƒ‰ƒX–¼w’è
-     * @return AccessTransformaerƒNƒ‰ƒX‚ÌƒNƒ‰ƒX–¼
+     * AccessTransformaerã‚¯ãƒ©ã‚¹ã®ã‚¯ãƒ©ã‚¹åæŒ‡å®š
+     * @return AccessTransformaerã‚¯ãƒ©ã‚¹ã®ã‚¯ãƒ©ã‚¹å
      */
     @Override
     public String getAccessTransformerClass() {
@@ -91,10 +91,10 @@ public class PotionExtensionCorePlugin implements IFMLLoadingPlugin {
     }
 
     /**
-     * ƒfƒoƒbƒO—p
-     * @param modified ƒNƒ‰ƒX‚ÌƒoƒCƒg”z—ñ
-     * @param className ƒNƒ‰ƒX–¼
-     * @return ƒNƒ‰ƒX‚ÌƒoƒCƒg”z—ñ
+     * ãƒ‡ãƒãƒƒã‚°ç”¨
+     * @param modified ã‚¯ãƒ©ã‚¹ã®ãƒã‚¤ãƒˆé…åˆ—
+     * @param className ã‚¯ãƒ©ã‚¹å
+     * @return ã‚¯ãƒ©ã‚¹ã®ãƒã‚¤ãƒˆé…åˆ—
      */
     public static byte[] outputModifiedClassFile(byte[] modified, String className) {
         if (debug) {

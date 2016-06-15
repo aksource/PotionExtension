@@ -8,17 +8,17 @@ import cpw.mods.fml.common.ModMetadata;
 import java.util.Arrays;
 
 /**
- * Coremod—p‚ÌModContainerƒNƒ‰ƒX
+ * Coremodç”¨ã®ModContainerã‚¯ãƒ©ã‚¹
  * Created by A.K. on 14/07/08.
  */
 public class PotionExtensionCoreContainer extends DummyModContainer {
     /**
-     * ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+     * ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
      */
     public PotionExtensionCoreContainer() {
         super(new ModMetadata());
 
-        /* mcmodinfo‚Ìİ’è */
+        /* mcmodinfoã®è¨­å®š */
         ModMetadata meta = getMetadata();
         meta.modId = "PotionExtensionCore";
         meta.name = "PotionExtensionCore";
@@ -31,10 +31,10 @@ public class PotionExtensionCoreContainer extends DummyModContainer {
     }
 
     /**
-     * Coremod‚ğMod‚Æ‚µ‚Ä“o˜^
-     * @param bus “o˜^—pBUS
+     * Coremodã‚’Modã¨ã—ã¦ç™»éŒ²
+     * @param bus ç™»éŒ²ç”¨BUS
      * @param controller LoadController
-     * @return “o˜^‚µ‚½‚©‚Ç‚¤‚©
+     * @return ç™»éŒ²ã—ãŸã‹ã©ã†ã‹
      */
     @Override
     public boolean registerBus(EventBus bus, LoadController controller) {

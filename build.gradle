@@ -16,6 +16,25 @@ minecraft {
     replace '@VERSION@', project.version
     replace '@MC_VERSION@', version
 }
+
+processResources {
+    // this will ensure that this task is redone when the versions change.
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraft.version
+
+    // replace stuff in mcmod.info, nothing else
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+
+        // replace version and mcversion
+        expand 'version':project.version, 'mcversion':project.minecraft.version
+    }
+
+    // copy everything else, thats not the mcmod.info
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
+}
 configurations {
     deployerJars
 }
@@ -24,70 +43,22 @@ dependencies {
     deployerJars "org.apache.maven.wagon:wagon-ssh:2.2"
 }
 
+apply plugin: 'maven'
+
+ext {
+    mavenRepository = '/maven'
+}
+
+artifacts {
+    // the default jar is already here by default
+    archives sourceJar
+    archives deobfJar
+}
+
 uploadArchives {
-    // make sure this happens after reobfuscation
-    it.dependsOn 'reobf'
-
     repositories {
-        if (project.hasProperty("filesmaven")) { // if this is the Forge server, and this stuff is defined...
-            logger.info('Publishing to files server')
-
-            mavenDeployer {
-                // specify the jars that maven needs to deploy here
-                configuration = configurations.deployerJars
-
-                // authentication, again, specially set in the forge server environment
-                repository(url: project.filesmaven.url) {
-                    authentication(userName: project.filesmaven.username, privateKey: project.filesmaven.key)
-                }
-
-                // here you specify all your metadata
-                // this is the definition of the maven pom.xml. This is simply a DSL to define the XML. Not actual fields or things to set.
-                pom {
-                    groupId = project.group
-                    version = project.version
-                    artifactId = project.archivesBaseName
-                    project {
-                        name project.archivesBaseName
-                        packaging 'jar'
-                        description 'A Minecraft mod extending potion array'
-                        url 'http://forum.minecraftuser.jp/viewtopic.php?f=13&t=6672'
-
-                        scm {
-                            url 'https://github.com/aksource/maven'
-                            connection 'scm:git:git://github.com/aksource/maven.git'
-                            developerConnection 'scm:git:git@github.com:aksource/maven.git'
-                        }
-
-                        issueManagement {
-                            system 'github'
-                            url 'https://github.com/aksource/maven/issues'
-                        }
-
-                        licenses {
-                            license {
-                                name 'Minecraft Mod Public License'
-                                url 'http://www.mod-buildcraft.com/MMPL-1.0.txt'
-                                distribution 'repo'
-                            }
-                        }
-
-                        developers {
-                            developer {
-                                id 'aksource'
-                                name 'A.K.'
-                                roles { role 'developer' }
-                            }
-
-                        }
-                    }
-                }
-            }
-        }
-        else
-        {
-            // otherwise publishing to the local repo in ~/.m2 is fine...
-            add project.repositories.mavenLocal()
+        mavenDeployer {
+            repository(url: uri(mavenRepository))
         }
     }
 }
